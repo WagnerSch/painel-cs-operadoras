@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Executivo CS &amp; Suporte Operadoras</title>
+<script>
+/* ===== CONFIGURAÇÃO ===== */
+/* Cole entre as aspas o link CSV da aba Dashboard publicada (Arquivo > Compartilhar > Publicar na web). */
+const PLANILHA_CSV = "";
+/* Intervalo de atualização, em minutos. */
+const MINUTOS = 10;
+</script>
+<style>
+:root{--color-bg:#ffffff;--color-panel:#f4f6f9;--color-fg:#15212c;--color-fg-muted:#566676;--color-border-line:#d8dfe7;--color-ok:#1d8650;--color-warn:#b4741a;--color-bad:#c03d37;
+--cds-chart-grid:#e3e8ee;--cds-chart-axis:#b5c0cb;--cds-chart-reference:#66788a;--cds-chart-muted:#c2cbd5;--cds-text-secondary:#566676;--cds-surface-popover:#ffffff;--cds-border:#d3dbe4;--cds-shadow-popover:0 4px 14px rgba(20,33,44,.14);--cds-radius:8px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--color-bg:#0f1720;--color-panel:#17222e;--color-fg:#e7edf3;--color-fg-muted:#9cadbd;--color-border-line:#2a3a4b;--color-ok:#43c283;--color-warn:#e3aa45;--color-bad:#ec6a63;
+--cds-chart-grid:#233243;--cds-chart-axis:#3b4f63;--cds-chart-reference:#8ea3b7;--cds-chart-muted:#3b4f63;--cds-text-secondary:#9cadbd;--cds-surface-popover:#1d2b3a;--cds-border:#334659;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.45);color-scheme:dark}
+.af:not(.af-light){--af-c1:#4f95d6;--af-c2:#35b3a8}}
+html,body{margin:0;background:var(--color-bg)}
+body:has(.af.af-dark){background:#0f1720}
+body:has(.af.af-light){background:#ffffff}
+.af{min-height:100vh;box-sizing:border-box}
+@media (min-width:1281px){.af{padding-top:6px!important;padding-bottom:6px!important;gap:8px!important}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script type="application/json" id="af-data">{"rv": [{"mes": "2026-01", "semestre": "1S", "receita": 512911, "cross": 26195, "downsell": -6089, "expansao_pct": 3.9, "pagantes_fesp": 4532, "pagantes_outros": 1623, "pagantes_total": 6155, "adicionados": 182, "desativados": 87}, {"mes": "2026-02", "semestre": "1S", "receita": 517573, "cross": 13722, "downsell": -8887, "expansao_pct": 0.9, "pagantes_fesp": 4612, "pagantes_outros": 1729, "pagantes_total": 6341, "adicionados": 189, "desativados": 103}, {"mes": "2026-03", "semestre": "1S", "receita": 527481, "cross": 11595, "downsell": -1436, "expansao_pct": 1.9, "pagantes_fesp": 4665, "pagantes_outros": 1754, "pagantes_total": 6419, "adicionados": 150, "desativados": 110}, {"mes": "2026-04", "semestre": "1S", "receita": 530013, "cross": 8017, "downsell": -5208, "expansao_pct": 0.5, "pagantes_fesp": 4668, "pagantes_outros": 1732, "pagantes_total": 6400, "adicionados": 113, "desativados": 83}, {"mes": "2026-05", "semestre": "1S", "receita": 532280, "cross": 3488, "downsell": -1843, "expansao_pct": 0.3, "pagantes_fesp": 4602, "pagantes_outros": 1698, "pagantes_total": 6300, "adicionados": 45, "desativados": 224}, {"mes": "2026-06", "semestre": "1S", "receita": 552454, "cross": 6020, "downsell": -1276, "expansao_pct": 0.9, "pagantes_fesp": 4678, "pagantes_outros": 1745, "pagantes_total": 6423, "adicionados": 278, "desativados": 187}, {"mes": "2026-07", "semestre": "2S", "receita": 615021, "cross": 7762.55, "downsell": -2701.22, "expansao_pct": 0.9, "pagantes_fesp": 4659, "pagantes_outros": 1910, "pagantes_total": 6569, "adicionados": 97, "desativados": 53}, {"mes": "2026-08", "semestre": "2S", "receita": 618814, "cross": 12184.07, "downsell": -5915.62, "expansao_pct": 1.1, "pagantes_fesp": 4679, "pagantes_outros": 1962, "pagantes_total": 6641, "adicionados": 156, "desativados": 75}, {"mes": "2026-09", "semestre": "2S", "receita": 615565, "cross": 10257.42, "downsell": -3697.33, "expansao_pct": 1.1, "pagantes_fesp": 4727, "pagantes_outros": 1969, "pagantes_total": 6696, "adicionados": 148, "desativados": 31}, {"mes": "2026-10", "semestre": "2S", "receita": 604940, "cross": 5808.99, "downsell": -13360.33, "expansao_pct": -1.3, "pagantes_fesp": 4749, "pagantes_outros": 1974, "pagantes_total": 6723, "adicionados": 84, "desativados": 37}], "sup": [{"mes": "2026-01", "semestre": "1S", "chamados": 1011, "avaliacoes": 197, "csat_pct": 96.3, "parcial": false}, {"mes": "2026-02", "semestre": "1S", "chamados": 1003, "avaliacoes": 149, "csat_pct": 95.0, "parcial": false}, {"mes": "2026-03", "semestre": "1S", "chamados": 1200, "avaliacoes": 197, "csat_pct": 96.8, "parcial": false}, {"mes": "2026-04", "semestre": "1S", "chamados": 1359, "avaliacoes": 204, "csat_pct": 94.9, "parcial": false}, {"mes": "2026-05", "semestre": "1S", "chamados": 1295, "avaliacoes": 173, "csat_pct": 96.5, "parcial": false}, {"mes": "2026-06", "semestre": "1S", "chamados": 1578, "avaliacoes": 216, "csat_pct": 94.4, "parcial": false}, {"mes": "2026-07", "semestre": "2S", "chamados": 1223, "avaliacoes": 169, "csat_pct": 95.8, "parcial": false}, {"mes": "2026-08", "semestre": "2S", "chamados": 1202, "avaliacoes": 141, "csat_pct": 96.5, "parcial": false}, {"mes": "2026-09", "semestre": "2S", "chamados": 1424, "avaliacoes": 173, "csat_pct": 97.7, "parcial": false}, {"mes": "2026-10", "semestre": "2S", "chamados": 1751, "avaliacoes": 170, "csat_pct": 96.5, "parcial": false}, {"mes": "2026-11", "semestre": "2S", "chamados": 856, "avaliacoes": 98, "csat_pct": null, "parcial": true}], "metas": [{"semestre": "2S", "indicador": "NRR médio", "unidade": "%", "sentido": "maior", "f125": 105, "f100": 104, "f75": 103, "f50": 102, "f25": 101, "resultado": 102.95, "resultado_txt": "102,95%", "id": "2S · NRR médio"}, {"semestre": "2S", "indicador": "NPS CS", "unidade": "%", "sentido": "maior", "f125": 98, "f100": 95, "f75": 90, "f50": 85, "f25": 80, "resultado": 99.7, "resultado_txt": "99,7%", "id": "2S · NPS CS"}, {"semestre": "2S", "indicador": "Novos PS", "unidade": "un", "sentido": "maior", "f125": 1000, "f100": 900, "f75": 800, "f50": 700, "f25": 600, "resultado": 485, "resultado_txt": "485", "id": "2S · Novos PS"}, {"semestre": "2S", "indicador": "CSAT médio", "unidade": "%", "sentido": "maior", "f125": 97.5, "f100": 96, "f75": 95, "f50": 94, "f25": 93, "resultado": 96.87, "resultado_txt": "96,87%", "id": "2S · CSAT médio"}, {"semestre": "2S", "indicador": "1ª resposta", "unidade": "min", "sentido": "menor", "f125": 3, "f100": 5, "f75": 8, "f50": 10, "f25": 15, "resultado": 4, "resultado_txt": "4 min", "id": "2S · 1ª resposta"}, {"semestre": "2S", "indicador": "Encerramento", "unidade": "h", "sentido": "menor", "f125": 8, "f100": 10, "f75": 11, "f50": 13, "f25": 15, "resultado": 12.383333333333333, "resultado_txt": "12h23", "id": "2S · Encerramento"}, {"semestre": "1S", "indicador": "Profissionais", "unidade": "un", "sentido": "maior", "f125": null, "f100": 900, "f75": 800, "f50": 700, "f25": 600, "resultado": 957, "resultado_txt": "957", "id": "1S · Profissionais"}, {"semestre": "1S", "indicador": "Expansão NRR", "unidade": "%", "sentido": "maior", "f125": null, "f100": 104, "f75": 103, "f50": 102, "f25": 101, "resultado": 101.5, "resultado_txt": "101,5%", "id": "1S · Expansão NRR"}, {"semestre": "1S", "indicador": "Nova Jornada TISS", "unidade": "un", "sentido": "maior", "f125": null, "f100": 1000, "f75": 950, "f50": 850, "f25": 750, "resultado": 1254, "resultado_txt": "1.254", "id": "1S · Nova Jornada TISS"}, {"semestre": "1S", "indicador": "Prescritores Ampli", "unidade": "un", "sentido": "maior", "f125": null, "f100": 900, "f75": 800, "f50": 700, "f25": 600, "resultado": 490, "resultado_txt": "490", "id": "1S · Prescritores Ampli"}, {"semestre": "1S", "indicador": "APS/TEA", "unidade": "un", "sentido": "maior", "f125": null, "f100": 7, "f75": 6, "f50": 5, "f25": 4, "resultado": 7, "resultado_txt": "7", "id": "1S · APS/TEA"}, {"semestre": "1S", "indicador": "CSAT médio", "unidade": "%", "sentido": "maior", "f125": null, "f100": 95, "f75": 94, "f50": 93, "f25": 92, "resultado": 95.6, "resultado_txt": "95,6%", "id": "1S · CSAT médio"}, {"semestre": "1S", "indicador": "1ª resposta", "unidade": "min", "sentido": "menor", "f125": null, "f100": 3, "f75": 5, "f50": 10, "f25": 15, "resultado": 8.666666666666666, "resultado_txt": "8min40", "id": "1S · 1ª resposta"}, {"semestre": "1S", "indicador": "Encerramento", "unidade": "h", "sentido": "menor", "f125": null, "f100": 3, "f75": 5, "f50": 10, "f25": 15, "resultado": 11.566666666666666, "resultado_txt": "11h34", "id": "1S · Encerramento"}], "aval_cs": [{"analista": "Guilherme", "avaliacoes": 4, "soma_notas": 39}, {"analista": "Jackson", "avaliacoes": 7, "soma_notas": 70}, {"analista": "João", "avaliacoes": 7, "soma_notas": 70}, {"analista": "Milena", "avaliacoes": 5, "soma_notas": 50}, {"analista": "Paula", "avaliacoes": 8, "soma_notas": 80}, {"analista": "Rosa", "avaliacoes": 5, "soma_notas": 50}], "cia": [{"indicador": "Ações NPS", "nota_pct": 55.6}, {"indicador": "EBITDA", "nota_pct": 91.6}, {"indicador": "RBV", "nota_pct": 50.0}, {"indicador": "Prescreve", "nota_pct": 46.8}, {"indicador": "Churn R$", "nota_pct": 51.1}], "cross": [{"projeto": "Health Records", "operadora": "Unimed Campo Grande", "valor": 1800}, {"projeto": "WhatsApp", "operadora": "Unimed Pato Branco", "valor": 1980}, {"projeto": "Range", "operadora": "Unimed Costa do Sol", "valor": 2540}, {"projeto": "Painel de senhas", "operadora": "Unimed São Carlos", "valor": 8960}], "_atualizado": "21/10 de 2026"}</script>
+<script>
+window.dash=(function(){
+  let raw=JSON.parse(document.getElementById('af-data').textContent);
+  const calcs={},draws=[];let cache={};
+  function data(id){
+    if(raw[id]) return {status:'ok',data:raw[id]};
+    if(calcs[id]){ if(!(id in cache)){ const c=calcs[id]; try{cache[id]=c.fn(...c.inputs.map(i=>data(i).data));}catch(e){console.error(id,e);cache[id]=[];} } return {status:'ok',data:cache[id]}; }
+    return {status:'missing',data:[]};
+  }
+  function runDraws(){ draws.forEach(([n,fn])=>document.querySelectorAll('[data-draw="'+n+'"]').forEach(el=>{try{fn(el);}catch(e){console.error(n,e);}})); }
+  let t; window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(runDraws,150);});
+  document.addEventListener('DOMContentLoaded',()=>{runDraws(); if(window.AFStart) AFStart();});
+  return {data, calc:(id,o)=>{calcs[id]=o;}, draw:(n,fn)=>{draws.push([n,fn]);}, onData:(fn)=>fn(),
+    colors:['var(--af-c1)','var(--af-c2)'], setLink:(n)=>{try{history.replaceState(null,'','#'+n);}catch(e){}}, refresh:()=>{}, params:()=>({}), setParams:()=>{},
+    _set:(r)=>{raw=r;cache={};runDraws();}, _raw:()=>raw};
+})();
+</script>
+<script>/* Leitura da aba Dashboard publicada (CSV) e conversão nos conjuntos de dados do painel */
+window.AFLoad = (function () {
+  function parseCSV(s) {
+    const rows = []; let row = [], f = '', q = false;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (q) { if (c === '"') { if (s[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { row.push(f); f = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && s[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+      else f += c;
+    }
+    if (f !== '' || row.length) { row.push(f); rows.push(row); }
+    return rows.map((r) => r.map((v) => v.replace(/ | /g, ' ').trim()));
+  }
+  const norm = (t) => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[▶►]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+  function num(t) {
+    if (t == null) return null;
+    let s = String(t).replace(/R\$|%/g, '').replace(/\s/g, '').replace(/[−–]/g, '-');
+    if (s === '' || s === '-') return null;
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    const v = Number(s);
+    return isFinite(v) ? v : null;
+  }
+  function hms(t) {
+    const m = String(t || '').match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);
+    return m ? {h: +m[1], m: +m[2], s: m[3] ? +m[3] : 0} : null;
+  }
+  // Seção: cabeçalho "▶ ..." em uma coluna; linhas até o próximo "▶" na mesma coluna
+  function section(g, re, c0, c1) {
+    for (let r = 0; r < g.length; r++) {
+      for (let c = c0; c < Math.min(c1, g[r].length); c++) {
+        const v = g[r][c];
+        if (v && /[▶►]/.test(v) && re.test(norm(v))) {
+          const rows = [];
+          for (let k = r + 1; k < g.length && k < r + 40; k++) {
+            const lab = g[k][c] || '';
+            if (/[▶►]/.test(lab)) break;
+            rows.push({r: k, label: lab, cells: g[k].slice(c + 1, c + 12)});
+          }
+          return {r, c, rows};
+        }
+      }
+    }
+    return null;
+  }
+  const find = (sec, re) => (sec ? sec.rows.find((x) => re.test(norm(x.label))) : null);
+  function block(g, c0, c1, sem, year) {
+    const meses = sem === '1S' ? [1, 2, 3, 4, 5, 6] : [7, 8, 9, 10, 11, 12];
+    const mk = (i) => year + '-' + String(meses[i]).padStart(2, '0');
+    const rec = section(g, /^receita/, c0, c1), exp = section(g, /^expansao/, c0, c1), usu = section(g, /^usuarios pagantes/, c0, c1);
+    const val = (row, i) => (row ? num(row.cells[i]) : null);
+    const lr = find(rec, /^total mensal/), lc = find(exp, /^cross/), ld = find(exp, /^down/);
+    const lf = find(usu, /^unimeds? fesp/), lo = find(usu, /^outros/), lt = find(usu, /^total pagantes/), la = find(usu, /^adicionados/), lx = find(usu, /^desativados/);
+    const rv = [];
+    for (let i = 0; i < 6; i++) {
+      const receita = val(lr, i);
+      if (!receita) continue;
+      const fesp = val(lf, i) || 0, outros = val(lo, i) || 0;
+      rv.push({mes: mk(i), semestre: sem, receita, cross: val(lc, i) || 0, downsell: val(ld, i) || 0,
+        pagantes_fesp: fesp, pagantes_outros: outros, pagantes_total: val(lt, i) || fesp + outros,
+        adicionados: val(la, i) || 0, desativados: val(lx, i) || 0});
+    }
+    const cs = section(g, /chamados/, c0, c1);
+    const lch = find(cs, /^chamados/), lav = find(cs, /^avaliac/), lcs = find(cs, /^csat ?%/);
+    const ultimo = rv.length ? rv[rv.length - 1].mes : null;
+    const sup = [];
+    for (let i = 0; i < 6; i++) {
+      const ch = val(lch, i);
+      if (!ch) continue;
+      const csat = val(lcs, i);
+      sup.push({mes: mk(i), semestre: sem, chamados: ch, avaliacoes: val(lav, i) || 0, csat_pct: csat || null, parcial: !!ultimo && mk(i) > ultimo});
+    }
+    const ms = section(g, /^metas/, c0, c1), metas = [];
+    if (ms) {
+      const head = ms.rows.find((x) => norm(x.label) === 'indicador');
+      const pcts = head ? head.cells.map((t) => num(t)) : [];
+      const tiers5 = sem === '2S';
+      ms.rows.forEach((x) => {
+        const lab = x.label.trim(), n = norm(lab);
+        if (!lab || n === 'indicador') return;
+        const nt = tiers5 ? 5 : 4;
+        const lim = x.cells.slice(0, nt), resTxt = x.cells[nt];
+        if (!resTxt) return;
+        const tempoMin = /resposta/.test(n), tempoH = /^enc/.test(n);
+        let resultado, resultado_txt, unidade, sentido = (tempoMin || tempoH) ? 'menor' : 'maior';
+        const t = hms(resTxt);
+        if (tempoMin) { unidade = 'min'; resultado = t ? t.h * 60 + t.m + t.s / 60 : num(resTxt); const mm = Math.floor(resultado), ss = Math.round((resultado - mm) * 60); resultado_txt = ss ? mm + 'min' + String(ss).padStart(2, '0') : mm + ' min'; }
+        else if (tempoH) { unidade = 'h'; resultado = t ? t.h + t.m / 60 + t.s / 3600 : num(resTxt); const hh = Math.floor(resultado), mi = Math.round((resultado - hh) * 60); resultado_txt = hh + 'h' + String(mi).padStart(2, '0'); }
+        else { unidade = /%/.test(resTxt) ? '%' : 'un'; resultado = num(resTxt); resultado_txt = resTxt.replace(/\s+/g, ''); }
+        const nome = lab.replace(/\s*\((min|hr|horas|h|%)\)\s*$/i, '').replace(/^Enc\.?$/i, 'Encerramento').replace(/Médio/g, 'médio').replace(/Resposta/g, 'resposta').replace(/^Expansão NRR$/, 'Expansão NRR');
+        const v = lim.map((t2) => num(t2));
+        const row = {semestre: sem, indicador: nome, unidade, sentido, resultado, resultado_txt,
+          f125: tiers5 ? v[0] : null, f100: tiers5 ? v[1] : v[0], f75: tiers5 ? v[2] : v[1], f50: tiers5 ? v[3] : v[2], f25: tiers5 ? v[4] : v[3]};
+        row.id = sem + ' · ' + nome;
+        if (resultado != null) metas.push(row);
+      });
+    }
+    return {rv, sup, metas};
+  }
+  function build(text) {
+    const g = parseCSV(text);
+    let c2 = -1, year = '2026', updated = '';
+    g.forEach((row) => row.forEach((v, c) => {
+      const n = norm(v);
+      if (c2 < 0 && /2. semestre/.test(n) && /dashboard/.test(n)) { c2 = c; const y = v.match(/20\d\d/); if (y) year = y[0]; }
+    }));
+    if (c2 < 0) throw new Error('Não encontrei o bloco do 2º semestre na aba publicada.');
+    g.forEach((row) => row.forEach((v, c) => { if (c >= c2 && /atualizado em/i.test(v) && !updated) updated = v.replace(/^atualizado em\s*/i, ''); }));
+    let c1s = 0;
+    g.forEach((row) => row.forEach((v, c) => { const n = norm(v); if (/1. semestre/.test(n) && /dashboard/.test(n) && c < c2) c1s = c; }));
+    const b1 = block(g, c1s, c2 - 3, '1S', year), b2 = block(g, c2, 9999, '2S', year);
+    // Notas CIA
+    const cia = [];
+    outer: for (let r = 0; r < g.length; r++) for (let c = 0; c < g[r].length; c++) {
+      if (/notas cia/.test(norm(g[r][c]))) {
+        let lab = null;
+        for (let k = r + 1; k < g.length && k < r + 40; k++) {
+          const v = g[k][c] || '';
+          if (/[▶►]/.test(v)) lab = v.replace(/[▶►]/g, '').trim();
+          else if (lab && v) { const n = num(v); if (n != null) cia.push({indicador: lab, nota_pct: n}); lab = null; }
+        }
+        break outer;
+      }
+    }
+    // Avaliações CS
+    const aval_cs = [];
+    const av = section(g, /^avaliac/, c2, 9999);
+    if (av) av.rows.forEach((x) => {
+      const n = norm(x.label);
+      if (!x.label || n === 'total') return;
+      const qt = num(x.cells[0]), nota = num(x.cells[1]);
+      if (qt == null || nota == null) return;
+      aval_cs.push({analista: x.label.charAt(0) + x.label.slice(1).toLowerCase(), avaliacoes: qt, soma_notas: nota});
+    });
+    // Destaques de cross
+    const cross = [];
+    const ds = section(g, /^destaques/, c2, 9999);
+    if (ds) {
+      let vc = -1;
+      ds.rows.forEach((x) => { const i = x.cells.findIndex((t) => norm(t) === 'valor'); if (i >= 0 && vc < 0) vc = i; });
+      ds.rows.forEach((x) => {
+        if (!x.label || norm(x.label) === 'total') return;
+        const v = vc >= 0 ? num(x.cells[vc]) : x.cells.map(num).find((n) => n != null);
+        if (v != null) cross.push({projeto: x.label, operadora: '', valor: v});
+      });
+    }
+    const out = {rv: b1.rv.concat(b2.rv), sup: b1.sup.concat(b2.sup), metas: b1.metas.concat(b2.metas), aval_cs, cia, cross, _atualizado: updated};
+    if (!b2.rv.length) throw new Error('A aba publicada não trouxe a receita do 2º semestre.');
+    return out;
+  }
+  return {parseCSV, build, num};
+})();
+</script>
+<script>
+window.AFStart = function () {
+  const st = document.getElementById('af-status');
+  const p = new URLSearchParams(location.search).get('csv');
+  const url = (p || PLANILHA_CSV || '').trim();
+  const hora = () => new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+  const show = (t) => { if (st) st.textContent = t; };
+  const copia = () => 'Exibindo a cópia salva (planilha atualizada em ' + (dash._raw()._atualizado || '—') + ').';
+  if (!/^https?:\/\//.test(url)) { show(copia() + ' Link da planilha ainda não configurado.'); return; }
+  try { const s = localStorage.getItem('af-ultima'); if (s) { const j = JSON.parse(s); if (j && j.rv) dash._set(j); } } catch (e) {}
+  async function carregar() {
+    try {
+      const r = await fetch(url + (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), {cache: 'no-store'});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const novo = AFLoad.build(await r.text());
+      dash._set(novo);
+      try { localStorage.setItem('af-ultima', JSON.stringify(novo)); } catch (e) {}
+      show('Lido da planilha às ' + hora() + (novo._atualizado ? ' · cabeçalho da planilha: atualizado em ' + novo._atualizado : '') + ' · atualiza a cada ' + MINUTOS + ' min.');
+    } catch (e) {
+      console.error(e);
+      show('Não foi possível ler a planilha às ' + hora() + ' (' + e.message + '). ' + copia());
+    }
+  }
+  carregar();
+  setInterval(carregar, MINUTOS * 60 * 1000);
+};
+</script>
+</head>
+<body>
+<style>
+#dash-root{--dash-gutter:0}
+.af{--af-c1:#3a7fc1;--af-c2:#2aa198;--af-on:#ffffff;--af-font:Verdana,Geneva,Tahoma,sans-serif;
+  display:flex;flex-direction:column;gap:10px;padding:14px 18px;font-family:var(--af-font);color:var(--color-fg);background:var(--color-bg)}
+.af.af-light{--color-bg:#ffffff;--color-panel:#f4f6f9;--color-fg:#15212c;--color-fg-muted:#566676;--color-border-line:#d8dfe7;--color-ok:#1d8650;--color-warn:#b4741a;--color-bad:#c03d37;
+  --cds-chart-grid:#e3e8ee;--cds-chart-axis:#b5c0cb;--cds-chart-reference:#66788a;--cds-chart-muted:#c2cbd5;--cds-text-secondary:#566676;--cds-surface-popover:#ffffff;--cds-border:#d3dbe4;--cds-shadow-popover:0 4px 14px rgba(20,33,44,.14);
+  --af-c1:#2f6fae;--af-c2:#1f8c84;color-scheme:light}
+.af.af-dark{--color-bg:#0f1720;--color-panel:#17222e;--color-fg:#e7edf3;--color-fg-muted:#9cadbd;--color-border-line:#2a3a4b;--color-ok:#43c283;--color-warn:#e3aa45;--color-bad:#ec6a63;
+  --cds-chart-grid:#233243;--cds-chart-axis:#3b4f63;--cds-chart-reference:#8ea3b7;--cds-chart-muted:#3b4f63;--cds-text-secondary:#9cadbd;--cds-surface-popover:#1d2b3a;--cds-border:#334659;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.45);
+  --af-c1:#4f95d6;--af-c2:#35b3a8;color-scheme:dark}
+.af svg text{font-family:var(--af-font)}
+.af-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 24px}
+.af-titles{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 560px}
+.af-eyebrow{font-size:11px;color:var(--color-fg-muted);text-transform:uppercase;letter-spacing:.06em}
+.af-top h1{font-weight:700;font-size:24px;line-height:1.2;margin:0}
+.af-lede{font-size:13px;line-height:1.5;margin:0;max-width:130ch}
+.af-lede b{font-weight:700;font-variant-numeric:tabular-nums}
+.af-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:0 1 auto}
+.af-theme{display:inline-flex;border:1px solid var(--color-border-line);border-radius:999px;overflow:hidden;background:var(--color-panel)}
+.af-theme button{font:inherit;font-size:12px;padding:4px 12px;border:0;background:transparent;color:var(--color-fg-muted);cursor:pointer}
+.af-theme button[aria-pressed="true"]{background:var(--color-fg);color:var(--color-bg)}
+.af-theme button:focus-visible{outline:2px solid var(--af-c1);outline-offset:-2px}
+.af-cia{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.af-cia-l{font-size:11px;color:var(--color-fg-muted);text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.af-chip{display:flex;flex-direction:column;align-items:center;padding:3px 9px;border:1px solid var(--color-border-line);border-radius:var(--cds-radius);background:var(--color-panel);min-width:70px}
+.af-chip span{font-size:10px;color:var(--color-fg-muted);white-space:nowrap}
+.af-chip b{font-size:14px;font-variant-numeric:tabular-nums}
+.af-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.af-tile{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:9px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.af-lab{font-size:11px;color:var(--color-fg-muted)}
+.af-big{font-weight:700;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
+.af-sub{font-size:11px;color:var(--color-fg-muted);font-variant-numeric:tabular-nums;line-height:1.45}
+.af-sub b{color:var(--color-fg)}
+.af-good{color:var(--color-ok)}
+.af-bad{color:var(--color-bad)}
+.af-in{color:var(--color-ok)}
+.af-board{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c4{grid-column:span 4}.c3{grid-column:span 3}.c2{grid-column:span 2}
+.af-card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:10px 14px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.af-card.af-hi{border:2px solid var(--af-c1)}
+.af-card h3{margin:0;font-size:13px;font-weight:700;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px}
+.af-card.af-hi h3{font-size:15px}
+.af-card h3 small{font-size:10px;font-weight:400;color:var(--color-fg-muted)}
+.af-chart{position:relative;min-height:170px}
+.af-legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--color-fg-muted)}
+.af-sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--cds-chart-muted)}
+.af-sw-dot{border-radius:50%;background:var(--color-fg)}
+.af-chart svg{display:block;overflow:visible}
+.af-chart .af-tick{fill:var(--cds-text-secondary);font-size:11px;font-variant-numeric:tabular-nums}
+.af-chart .af-sublbl{fill:var(--color-fg-muted);font-size:10px;font-variant-numeric:tabular-nums}
+.af-gl{stroke:var(--cds-chart-grid)}
+.af-axis0{stroke:var(--cds-chart-axis)}
+.af-ref{stroke:var(--cds-chart-reference);stroke-dasharray:4 3}
+.af-lbl{fill:var(--color-fg);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.af-lbl-in{fill:var(--af-on);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.af-big-lbl .af-lbl{font-size:13px}
+.af-note{fill:var(--color-fg-muted);font-size:10px}
+.af-tip{position:absolute;z-index:5;pointer-events:none;background:var(--cds-surface-popover);border:1px solid var(--cds-border);box-shadow:var(--cds-shadow-popover);border-radius:6px;padding:6px 9px;font-size:11px;line-height:1.5;color:var(--cds-text-secondary);white-space:nowrap;font-variant-numeric:tabular-nums}
+.af-tip-h{color:var(--color-fg);font-weight:700}
+.af-ph{display:flex;align-items:center;justify-content:center;min-height:150px;color:var(--color-fg-muted);font-size:11px}
+.af-tw{overflow-x:auto}
+.af-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.af-table th{text-align:left;font-size:10px;color:var(--color-fg-muted);font-weight:400;padding:2px 6px 4px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
+.af-table td{padding:5px 6px;border-bottom:1px solid var(--color-border-line);vertical-align:middle}
+.af-table tr:last-child td{border-bottom:0}
+.af-table .af-num{text-align:right;white-space:nowrap}
+.af-metas td{font-size:13px}
+.af-metas td.af-ind{font-weight:700;white-space:nowrap}
+.af-metas td.af-res{font-size:16px;font-weight:700}
+.af-ladder{display:flex;gap:4px}
+.af-step{flex:1 1 0;min-width:58px;padding:3px 4px;border-radius:5px;font-size:11px;line-height:1.3;text-align:center;color:var(--color-fg-muted);border:1px solid var(--color-border-line);white-space:nowrap}
+.af-step span{display:block;font-size:10px}
+.af-step.on{color:var(--af-on);font-weight:700;border-color:transparent}
+.af-step.on.af-s-ok{background:var(--color-ok)}
+.af-step.on.af-s-warn{background:var(--color-warn)}
+.af-step.on.af-s-bad{background:var(--color-bad)}
+.af-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.af-p-ok{background:color-mix(in srgb,var(--color-ok) 16%,transparent);color:var(--color-ok)}
+.af-p-warn{background:color-mix(in srgb,var(--color-warn) 18%,transparent);color:var(--color-warn)}
+.af-p-bad{background:color-mix(in srgb,var(--color-bad) 16%,transparent);color:var(--color-bad)}
+.af-csat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.af-csat>div{display:flex;flex-direction:column;gap:2px;padding:6px 10px;border-radius:var(--cds-radius);border:1px solid var(--color-border-line);min-width:0}
+.af-csat .af-now{border:2px solid var(--af-c1)}
+.af-csat .af-big{font-size:28px}
+.af-csat .af-old .af-big{font-size:22px;color:var(--color-fg-muted)}
+.af-hb{display:grid;grid-template-columns:minmax(64px,42%) minmax(30px,1fr) max-content;gap:5px 10px;align-items:center;font-size:11px}
+.af-hb-l{min-width:0;overflow-wrap:anywhere;line-height:1.25}
+.af-hb-v{font-variant-numeric:tabular-nums;text-align:right;color:var(--color-fg-muted);white-space:nowrap}
+.af-hb-v b{color:var(--color-fg)}
+.af-track{height:9px;background:color-mix(in srgb,var(--color-border-line) 70%,transparent);border-radius:5px;overflow:hidden}
+.af-fill{height:100%;border-radius:5px}
+.af-foot{font-size:10px;color:var(--color-fg-muted)}
+#dash-root [data-dash-source-state=refreshing]{opacity:.5}
+@media (max-width:1280px){.c7,.c5,.c4,.c3{grid-column:span 6}.c2{grid-column:span 6}.af-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.c7,.c5,.c4,.c3,.c2{grid-column:span 12}.af-tiles,.af-csat{grid-template-columns:minmax(0,1fr)}.af{padding:10px 0}.af-side{align-items:flex-start}}
+</style>
+
+<div class="af">
+  <header class="af-top" id="topo">
+    <div class="af-titles">
+      <div class="af-eyebrow">BU Operadoras · CS &amp; Suporte · 2º semestre 2026 (semestre atual) · dados de jul a out</div>
+      <h1>Painel Executivo CS &amp; Suporte Operadoras</h1>
+      <p class="af-lede" data-read lang="pt-BR">Em <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="mes_nome" data-fmt="text">—</b> a receita recorrente somou <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita" data-fmt="brl">—</b> (<b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita_var_pct" data-fmt="pct1s" data-tone="higher">—</b> sobre o mês anterior) e a expansão líquida foi de <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="expansao" data-fmt="brl" data-tone="higher">—</b>, puxada por down sell de <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="downsell" data-fmt="brl">—</b>. <b data-draw="kpi" data-source="metas_resumo" data-where="semestre=2S" data-field="no_alvo" data-fmt="int">—</b> de <b data-draw="kpi" data-source="metas_resumo" data-where="semestre=2S" data-field="total" data-fmt="int">—</b> metas do semestre estão na faixa de 100% ou acima.</p>
+    </div>
+    <div class="af-side">
+      <div class="af-theme" role="group" aria-label="Tema">
+        <button type="button" id="tema-auto" data-theme-pick="auto" aria-pressed="true">Automático</button>
+        <button type="button" id="tema-claro" data-theme-pick="light" aria-pressed="false">Claro</button>
+        <button type="button" id="tema-escuro" data-theme-pick="dark" aria-pressed="false">Escuro</button>
+      </div>
+      <div class="af-cia" id="notas-cia" aria-label="Notas CIA" data-draw="cia_chips"></div>    </div>
+  </header>
+
+  <section class="af-tiles" id="kpis" aria-label="Indicadores principais">
+    <div class="af-tile" id="kpi-receita">
+      <div class="af-lab">Receita recorrente · out/26</div>
+      <div class="af-big" data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita" data-fmt="brl">—</div>
+      <div class="af-sub"><span data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita_var_pct" data-fmt="pct1s" data-tone="higher">—</span> vs set/26 · jul–out <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita_2s" data-fmt="brl">—</b></div>
+    </div>
+    <div class="af-tile" id="kpi-expansao">
+      <div class="af-lab">Expansão líquida · out/26</div>
+      <div class="af-big" data-draw="kpi" data-source="kpi_out" data-row="0" data-field="expansao" data-fmt="brl" data-tone="higher">—</div>
+      <div class="af-sub">Jul–out <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="expansao_2s" data-fmt="brl" data-tone="higher">—</b> · NRR médio <b data-draw="kpi" data-source="metas" data-where="id=2S · NRR médio" data-field="resultado" data-fmt="pct2">—</b></div>
+    </div>
+    <div class="af-tile" id="kpi-pagantes">
+      <div class="af-lab">Usuários pagantes · out/26</div>
+      <div class="af-big" data-draw="kpi" data-source="kpi_out" data-row="0" data-field="pagantes" data-fmt="int">—</div>
+      <div class="af-sub">Unimeds FESP <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="pagantes_fesp" data-fmt="int">—</b> · Outros projetos <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="pagantes_outros" data-fmt="int">—</b></div>
+    </div>
+    <div class="af-tile" id="kpi-entradas">
+      <div class="af-lab">Entradas de usuários · jul–out</div>
+      <div class="af-big af-in" data-draw="kpi" data-source="kpi_out" data-row="0" data-field="adicionados_2s" data-fmt="int">—</div>
+      <div class="af-sub">Saídas no período (informativo): <span data-draw="kpi" data-source="kpi_out" data-row="0" data-field="desativados_2s" data-fmt="int">—</span></div>
+    </div>
+    <div class="af-tile" id="kpi-avaliacoes">
+      <div class="af-lab">Time CS · nota média</div>
+      <div class="af-big" data-draw="kpi" data-source="aval_total" data-row="0" data-field="media" data-fmt="dec2">—</div>
+      <div class="af-sub"><b data-draw="kpi" data-source="aval_total" data-row="0" data-field="avaliacoes" data-fmt="int">—</b> avaliações · NPS CS <b data-draw="kpi" data-source="metas" data-where="id=2S · NPS CS" data-field="resultado" data-fmt="pct1">—</b></div>
+    </div>
+  </section>
+
+  <section class="af-board" id="painel" aria-label="Painel">
+    <div class="af-card af-hi c7" id="metas-2s">
+      <h3>Metas do 2º semestre · posição de cada item por faixa <small>destaque = faixa alcançada · em tempos, menor é melhor</small></h3>
+      <div class="af-tw">
+        <table class="af-table af-metas" data-source="metas_faixa" data-row-key="id" aria-label="Metas do 2º semestre">
+          <thead><tr><th data-field="indicador">Indicador</th><th>Faixas: 125% · 100% · 75% · 50% · 25%</th><th class="af-num" data-field="resultado_txt">Resultado</th><th class="af-num">Posição</th></tr></thead>
+          <tbody data-draw="metas" data-sem="2S"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="af-card af-hi c5" id="card-csat">
+      <h3>CSAT <small>meta 100% do 2º sem.: tracejado</small></h3>
+      <div class="af-csat">
+        <div class="af-now" id="csat-atual">
+          <div class="af-lab">CSAT atual · <span data-draw="kpi" data-source="kpi_out" data-row="0" data-field="csat_mes" data-fmt="text">—</span></div>
+          <div class="af-big" data-draw="kpi" data-source="kpi_out" data-row="0" data-field="csat_atual" data-fmt="pct1">—</div>
+        </div>
+        <div class="af-now" id="csat-2s">
+          <div class="af-lab">Médio 2º semestre</div>
+          <div class="af-big" data-draw="kpi" data-source="metas" data-where="id=2S · CSAT médio" data-field="resultado" data-fmt="pct2">—</div>
+          <div><span data-draw="faixa" data-id="2S · CSAT médio" data-source="metas_faixa"></span></div>
+        </div>
+        <div class="af-old" id="csat-1s">
+          <div class="af-lab">1º semestre (encerrado)</div>
+          <div class="af-big" data-draw="kpi" data-source="metas" data-where="id=1S · CSAT médio" data-field="resultado" data-fmt="pct1">—</div>
+          <div><span data-draw="faixa" data-id="1S · CSAT médio" data-source="metas_faixa"></span></div>
+        </div>
+      </div>
+      <div class="af-chart" data-draw="ch_csat" data-source="sup metas"></div>
+    </div>
+
+    <div class="af-card c5" id="card-receita">
+      <h3>Receita recorrente mensal · 2º semestre <small>tracejado: média mensal do 1º semestre</small></h3>
+      <div class="af-chart af-big-lbl" data-draw="ch_receita" data-source="rv sem_comp"></div>
+    </div>
+    <div class="af-card c4" id="card-base">
+      <h3>Base pagante · 2º semestre</h3>
+      <div class="af-legend"><span><i class="af-sw" data-swatch="c1"></i>Unimeds FESP</span><span><i class="af-sw" data-swatch="c2"></i>Outros projetos</span><span>topo: total</span></div>
+      <div class="af-chart" data-draw="ch_base" data-source="rv"></div>
+    </div>
+    <div class="af-card c3" id="card-entradas">
+      <h3>Entradas de usuários <small>saídas apenas informativas</small></h3>
+      <div class="af-chart" data-draw="ch_entradas" data-source="rv"></div>
+    </div>
+
+    <div class="af-card c4" id="card-expansao">
+      <h3>Cross × down sell · 2º semestre <small>R$ mil</small></h3>
+      <div class="af-legend"><span><i class="af-sw" data-swatch="ok"></i>Cross / upsell</span><span><i class="af-sw" data-swatch="bad"></i>Down sell</span><span>abaixo do mês: expansão líquida</span></div>
+      <div class="af-chart" data-draw="ch_expansao" data-source="rv"></div>
+    </div>
+    <div class="af-card c3" id="card-chamados">
+      <h3>Chamados HubSpot <small>* nov parcial</small></h3>
+      <div class="af-chart" data-draw="ch_chamados" data-source="sup"></div>
+    </div>
+    <div class="af-card c2" id="card-aval">
+      <h3>Avaliações CS</h3>
+      <div class="af-hb" data-draw="hb_aval" data-source="aval"></div>
+    </div>
+    <div class="af-card c3" id="cross">
+      <h3>Destaques de cross <small>total <b data-draw="kpi" data-source="cross_total" data-row="0" data-field="valor" data-fmt="brl">—</b></small></h3>
+      <div class="af-hb" data-draw="hb_cross" data-source="cross cross_total"></div>
+    </div>
+  </section>
+
+  <div class="af-foot" id="origem">Fonte: aba Dashboard da planilha Controle de metas 2026. Expansão líquida = cross/upsell + down sell/downgrade. Nota média CS = soma das notas ÷ avaliações. <span id="af-status"></span></div>
+</div>
+
+<script>
+window.AF = (function () {
+  const loc = d3.formatLocale({decimal: ',', thousands: '.', grouping: [3], currency: ['R$ ', '']});
+  const nomes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const curtos = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const f = {
+    brl: loc.format('$,.0f'),
+    int: loc.format(',.0f'),
+    ints: (v) => (v > 0 ? '+' : '') + loc.format(',.0f')(v),
+    pct1: (v) => loc.format(',.1f')(v) + '%',
+    pct1s: (v) => (v > 0 ? '+' : '') + loc.format(',.1f')(v) + '%',
+    pct2: (v) => loc.format(',.2f')(v) + '%',
+    dec2: loc.format(',.2f'),
+    text: (v) => String(v)
+  };
+  return {
+    loc, f,
+    fmt: (k, v) => (f[k] || f.text)(v),
+    mes: (s) => curtos[+s.slice(5, 7) - 1],
+    mesLongo: (s) => nomes[+s.slice(5, 7) - 1] + ' de ' + s.slice(0, 4),
+    mil1: (v) => loc.format(',.1f')(v / 1000),
+    mil0: (v) => loc.format(',.0f')(v / 1000) + ' mil',
+    MESES_2S: ['2026-07', '2026-08', '2026-09', '2026-10', '2026-11', '2026-12'],
+    enc: (t) => String(t).replace(/%/g, '%25').replace(/&/g, '%26').replace(/=/g, '%3D'),
+    color: (k) => ({ok: 'var(--color-ok)', bad: 'var(--color-bad)', muted: 'var(--cds-chart-muted)', fg: 'var(--color-fg)', c1: 'var(--af-c1)', c2: 'var(--af-c2)'})[k],
+    ph: function (el, status) {
+      el.replaceChildren();
+      const p = document.createElement('div');
+      p.className = 'af-ph';
+      p.textContent = status === 'error' ? 'Falha ao carregar' : '—';
+      el.appendChild(p);
+    },
+    tip: function (el, lines, x, y) {
+      if (!lines) return AF.untip(el);
+      let t = el.querySelector(':scope > .af-tip');
+      if (!t) { t = document.createElement('div'); t.className = 'af-tip'; el.appendChild(t); }
+      t.replaceChildren(...lines.filter(Boolean).map((l, i) => { const d = document.createElement('div'); d.textContent = l; if (i === 0) d.className = 'af-tip-h'; return d; }));
+      t.hidden = false;
+      const w = el.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+      t.style.left = Math.max(0, Math.min(x + 14, w - tw)) + 'px';
+      t.style.top = Math.max(0, y - th - 8) + 'px';
+    },
+    untip: function (el) { const t = el.querySelector(':scope > .af-tip'); if (t) t.hidden = true; },
+    byMonth: function (rows) { const m = new Map(rows.map((r) => [r.mes, r])); return AF.MESES_2S.map((k) => m.get(k) || null); }
+  };
+})();
+
+document.querySelectorAll('[data-swatch]').forEach((s) => { s.style.background = AF.color(s.dataset.swatch); });
+
+/* Tema: automático, claro ou escuro */
+(function () {
+  const roots = () => document.querySelectorAll('.af');
+  const apply = (pick) => {
+    roots().forEach((r) => { r.classList.toggle('af-light', pick === 'light'); r.classList.toggle('af-dark', pick === 'dark'); });
+    document.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themePick === pick)));
+  };
+  const fromHash = {'#tema-claro': 'light', '#tema-escuro': 'dark', '#tema-auto': 'auto'}[location.hash];
+  if (fromHash) apply(fromHash);
+  document.querySelectorAll('[data-theme-pick]').forEach((b) => {
+    b.addEventListener('click', () => { apply(b.dataset.themePick); try { dash.setLink(b.id); } catch (e) {} });
+  });
+})();
+
+/* Gráfico de colunas: pilhas com rótulos visíveis, linha, pontos, referência e rótulos sob o mês */
+window.AFchart = function (el, o) {
+  const W = Math.max(260, el.clientWidth || 500), H = o.height || 180;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', o.aria);
+  const n = o.cats.length, pos = new Array(n).fill(0), neg = new Array(n).fill(0), rects = [];
+  (o.stacks || []).forEach((s) => s.values.forEach((v, i) => {
+    if (v == null) return;
+    if (v >= 0) { rects.push({s, i, v, a: pos[i], b: pos[i] + v}); pos[i] += v; }
+    else { rects.push({s, i, v, a: neg[i], b: neg[i] + v}); neg[i] += v; }
+  }));
+  let lo = Math.min(0, ...neg), hi = Math.max(0, ...pos);
+  const extra = [...(o.line ? o.line.values : []), ...(o.ref ? [o.ref.value] : [])].filter((v) => v != null);
+  if (extra.length) { lo = Math.min(lo, ...extra); hi = Math.max(hi, ...extra); }
+  if (o.yDomain) { lo = o.yDomain[0]; hi = o.yDomain[1]; }
+  else { const span = hi - lo || 1; hi += span * 0.14; if (lo < 0) lo -= span * 0.16; }
+  const y = d3.scaleLinear().domain([lo, hi]).nice(4);
+  const ticks = y.ticks(4);
+  const meas = svg.append('text').attr('class', 'af-tick');
+  let ml = 0;
+  ticks.forEach((t) => { meas.text(o.yFmt(t)); ml = Math.max(ml, meas.node().getComputedTextLength()); });
+  meas.remove();
+  const m = {t: 16, r: 8, b: o.subLabel ? 36 : 22, l: Math.ceil(ml) + 10};
+  y.range([H - m.b, m.t]);
+  const x = d3.scaleBand().domain(d3.range(n)).range([m.l, W - m.r]).paddingInner(0.3).paddingOuter(0.15);
+  const cx = (i) => x(i) + x.bandwidth() / 2;
+  const g = svg.append('g');
+  g.selectAll('line').data(ticks).join('line').attr('class', (t) => (t === 0 ? 'af-axis0' : 'af-gl')).attr('x1', m.l).attr('x2', W - m.r).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
+  g.selectAll('text.yt').data(ticks).join('text').attr('class', 'af-tick yt').attr('x', m.l - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => o.yFmt(t));
+  g.selectAll('text.xt').data(o.cats).join('text').attr('class', 'af-tick xt').attr('x', (c, i) => cx(i)).attr('y', H - m.b + 15).attr('text-anchor', 'middle').text((c) => c);
+  if (o.subLabel) g.selectAll('text.st').data(d3.range(n)).join('text').attr('class', 'af-sublbl st').attr('x', cx).attr('y', H - m.b + 29).attr('text-anchor', 'middle').text((i) => o.subLabel(i) || '');
+  if (o.ref) {
+    g.append('line').attr('class', 'af-ref').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(o.ref.value)).attr('y2', y(o.ref.value));
+    g.append('text').attr('class', 'af-note').attr('x', W - m.r).attr('y', y(o.ref.value) - 4).attr('text-anchor', 'end').text(o.ref.label);
+  }
+  svg.append('g').selectAll('rect').data(rects).join('rect')
+    .attr('x', (d) => x(d.i)).attr('width', x.bandwidth())
+    .attr('y', (d) => y(Math.max(d.a, d.b))).attr('height', (d) => Math.max(0, Math.abs(y(d.a) - y(d.b))))
+    .attr('rx', 2)
+    .style('fill', (d) => d.s.color)
+    .style('opacity', (d) => (o.opacityAt ? o.opacityAt(d.i) : 1));
+  const lab = svg.append('g');
+  rects.forEach((d) => {
+    if (!d.s.label) return;
+    const txt = d.s.label(d.v, d.i);
+    if (!txt) return;
+    const h = Math.abs(y(d.a) - y(d.b));
+    if (d.s.labelPos === 'in') {
+      if (h < 15) return;
+      lab.append('text').attr('class', 'af-lbl-in').attr('x', cx(d.i)).attr('y', (y(d.a) + y(d.b)) / 2).attr('dy', '0.35em').attr('text-anchor', 'middle').text(txt);
+    } else {
+      const yy = d.v >= 0 ? y(d.b) - 5 : y(d.b) + 13;
+      lab.append('text').attr('class', 'af-lbl').attr('x', cx(d.i)).attr('y', yy).attr('text-anchor', 'middle').text(txt);
+    }
+  });
+  if (o.line) {
+    const pts = o.line.values.map((v, i) => [i, v]).filter((p) => p[1] != null);
+    svg.append('path').datum(pts).attr('d', d3.line().x((p) => cx(p[0])).y((p) => y(p[1]))).style('fill', 'none').style('stroke', o.line.color).style('stroke-width', 2.5);
+    svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', (p) => cx(p[0])).attr('cy', (p) => y(p[1])).attr('r', 4).style('fill', o.line.color).style('stroke', 'var(--color-panel)').style('stroke-width', 1.5);
+    if (o.line.label) pts.forEach((p) => lab.append('text').attr('class', 'af-lbl').attr('x', cx(p[0])).attr('y', y(p[1]) - 9).attr('text-anchor', 'middle').text(o.line.label(p[1], p[0])));
+  }
+  if (o.topLabel) d3.range(n).forEach((i) => {
+    const t = o.topLabel(i);
+    if (!t) return;
+    lab.append('text').attr('class', 'af-lbl').attr('x', cx(i)).attr('y', y(pos[i]) - 5).attr('text-anchor', 'middle').text(t);
+  });
+  svg.append('g').selectAll('rect').data(d3.range(n)).join('rect')
+    .attr('x', (i) => x(i) - (x.step() - x.bandwidth()) / 2).attr('width', x.step()).attr('y', m.t).attr('height', H - m.t - m.b)
+    .style('fill', 'transparent')
+    .on('pointermove', (ev, i) => { const [px, py] = d3.pointer(ev, el); AF.tip(el, o.tip(i), px, py); })
+    .on('pointerleave', () => AF.untip(el));
+};
+
+/* Barras horizontais em HTML */
+window.AFhbars = function (el, rows, o) {
+  el.replaceChildren();
+  const max = o.max || d3.max(rows, (r) => r.value) || 1;
+  rows.forEach((r) => {
+    const l = document.createElement('div'); l.className = 'af-hb-l'; l.textContent = r.label;
+    const tr = document.createElement('div'); tr.className = 'af-track';
+    const fi = document.createElement('div'); fi.className = 'af-fill';
+    fi.style.width = Math.max(0, Math.min(100, (r.value / max) * 100)) + '%';
+    fi.style.background = r.color;
+    tr.appendChild(fi);
+    const v = document.createElement('div'); v.className = 'af-hb-v';
+    r.parts.forEach((p) => {
+      const s = document.createElement(p.strong ? 'b' : 'span');
+      s.textContent = p.text;
+      if (p.mark) { s.dataset.source = p.mark.source; s.dataset.field = p.mark.field; if (p.mark.where) s.dataset.where = p.mark.where; }
+      v.appendChild(s);
+    });
+    el.append(l, tr, v);
+  });
+};
+</script>
+
+<script>
+dash.calc('kpi_out', {
+  inputs: ['rv', 'sup'],
+  title: 'Indicadores do último mês e do semestre',
+  description: 'Receita, expansão, base pagante e CSAT do último mês com dados no 2º semestre, com variação sobre o mês anterior e totais de jul a out.',
+  fn: (meses, suporte) => {
+    const s2 = meses.filter((r) => r.semestre === '2S').sort((a, b) => (a.mes < b.mes ? -1 : 1));
+    if (s2.length < 2) return [];
+    const u = s2[s2.length - 1], p = s2[s2.length - 2];
+    const sup2 = suporte.filter((r) => r.semestre === '2S').sort((a, b) => (a.mes < b.mes ? -1 : 1));
+    const comCsat = sup2.filter((r) => r.csat_pct != null);
+    const ult = comCsat[comCsat.length - 1];
+    const soma = (arr, fn) => arr.reduce((t, r) => t + fn(r), 0);
+    const nomes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    const curtos = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    return [{
+      mes: u.mes,
+      mes_nome: nomes[+u.mes.slice(5, 7) - 1],
+      receita: u.receita,
+      receita_var_pct: Math.round((u.receita / p.receita - 1) * 1000) / 10,
+      receita_2s: soma(s2, (r) => r.receita),
+      cross: Math.round(u.cross),
+      downsell: Math.round(u.downsell),
+      expansao: Math.round(u.cross + u.downsell),
+      expansao_2s: Math.round(soma(s2, (r) => r.cross + r.downsell)),
+      pagantes: u.pagantes_total,
+      pagantes_fesp: u.pagantes_fesp,
+      pagantes_outros: u.pagantes_outros,
+      adicionados_2s: soma(s2, (r) => r.adicionados),
+      desativados_2s: soma(s2, (r) => r.desativados),
+      saldo_2s: soma(s2, (r) => r.adicionados - r.desativados),
+      chamados_2s: soma(sup2, (r) => r.chamados),
+      avaliacoes_2s: soma(sup2, (r) => r.avaliacoes),
+      csat_atual: ult ? ult.csat_pct : null,
+      csat_mes: ult ? curtos[+ult.mes.slice(5, 7) - 1] + '/' + ult.mes.slice(2, 4) : null
+    }];
+  }
+});
+
+dash.calc('metas_faixa', {
+  inputs: ['metas'],
+  title: 'Faixa de atingimento por meta',
+  description: 'Maior faixa cujo limite o resultado alcança (para tempos, o resultado precisa ficar abaixo do limite).',
+  fn: (metas) => metas.map((m) => {
+    const faixas = [[125, m.f125], [100, m.f100], [75, m.f75], [50, m.f50], [25, m.f25]].filter((t) => t[1] != null);
+    let faixa = 0;
+    for (const [pct, limite] of faixas) {
+      const ok = m.sentido === 'maior' ? m.resultado >= limite : m.resultado <= limite;
+      if (ok) { faixa = pct; break; }
+    }
+    return {id: m.id, semestre: m.semestre, indicador: m.indicador, resultado_txt: m.resultado_txt, faixa};
+  })
+});
+
+dash.calc('metas_resumo', {
+  inputs: ['metas_faixa'],
+  title: 'Metas na faixa de 100% ou acima',
+  description: 'Quantas metas de cada semestre alcançaram a faixa de 100% ou superior.',
+  fn: (faixas) => ['1S', '2S'].map((s) => {
+    const rs = faixas.filter((r) => r.semestre === s);
+    return {semestre: s, no_alvo: rs.filter((r) => r.faixa >= 100).length, total: rs.length};
+  })
+});
+
+dash.calc('sem_comp', {
+  inputs: ['rv', 'sup'],
+  title: 'Comparativo entre semestres',
+  description: 'Médias mensais e totais do 1º semestre (jan–jun) e do 2º semestre até outubro (jul–out).',
+  fn: (meses, suporte) => {
+    const m1 = meses.filter((r) => r.semestre === '1S'), m2 = meses.filter((r) => r.semestre === '2S');
+    const s1 = suporte.filter((r) => r.semestre === '1S'), s2 = suporte.filter((r) => r.semestre === '2S' && !r.parcial);
+    const soma = (a, fn) => a.reduce((t, r) => t + fn(r), 0);
+    const med = (a, fn) => soma(a, fn) / a.length;
+    const linha = (indicador, a, b, tipo) => ({indicador, s1: Math.round(a), s2: Math.round(b), var_pct: Math.round((b / a - 1) * 1000) / 10, tipo});
+    return [
+      linha('Receita recorrente média mensal (R$)', med(m1, (r) => r.receita), med(m2, (r) => r.receita), 'brl'),
+      linha('Cross / upsell total (R$)', soma(m1, (r) => r.cross), soma(m2, (r) => r.cross), 'brl'),
+      linha('Down sell / downgrade total (R$)', soma(m1, (r) => r.downsell), soma(m2, (r) => r.downsell), 'brl'),
+      linha('Expansão líquida total (R$)', soma(m1, (r) => r.cross + r.downsell), soma(m2, (r) => r.cross + r.downsell), 'brl'),
+      linha('Entradas de usuários', soma(m1, (r) => r.adicionados), soma(m2, (r) => r.adicionados), 'int'),
+      linha('Chamados HubSpot, média mensal', med(s1, (r) => r.chamados), med(s2, (r) => r.chamados), 'int')
+    ];
+  }
+});
+
+dash.calc('aval', {
+  inputs: ['aval_cs'],
+  title: 'Nota média por analista',
+  description: 'Soma das notas dividida pelo número de avaliações de cada analista.',
+  fn: (avaliacoes) => avaliacoes.map((r) => ({analista: r.analista, avaliacoes: r.avaliacoes, media: Math.round((r.soma_notas / r.avaliacoes) * 100) / 100}))
+});
+
+dash.calc('aval_total', {
+  inputs: ['aval_cs'],
+  title: 'Nota média do time CS',
+  description: 'Total de avaliações e nota média do time (soma das notas dividida pelo total de avaliações).',
+  fn: (avaliacoes) => {
+    const n = avaliacoes.reduce((t, r) => t + r.avaliacoes, 0), s = avaliacoes.reduce((t, r) => t + r.soma_notas, 0);
+    return [{avaliacoes: n, media: Math.round((s / n) * 100) / 100}];
+  }
+});
+
+dash.calc('cross_total', {
+  inputs: ['cross'],
+  title: 'Total dos destaques de cross',
+  description: 'Soma dos valores dos projetos de cross em destaque.',
+  fn: (projetos) => [{valor: projetos.reduce((t, r) => t + r.valor, 0)}]
+});
+</script>
+
+<script>
+/* Números soltos (frases e cartões) */
+dash.draw('kpi', (el) => {
+  const d = dash.data(el.dataset.source);
+  if (d.status !== 'ok' || !Array.isArray(d.data) || !d.data.length) { el.textContent = '—'; return; }
+  let row;
+  if (el.dataset.where) {
+    const i = el.dataset.where.indexOf('=');
+    const dec = (t) => t.replace(/%3D/gi, '=').replace(/%26/gi, '&').replace(/%25/g, '%');
+    const k = dec(el.dataset.where.slice(0, i)), v = dec(el.dataset.where.slice(i + 1));
+    row = d.data.find((r) => String(r[k]) === v);
+  } else row = d.data[+(el.dataset.row || 0)];
+  const v = row ? row[el.dataset.field] : null;
+  el.textContent = v == null ? '—' : AF.fmt(el.dataset.fmt, v);
+  if (el.dataset.tone && v != null) {
+    const bom = el.dataset.tone === 'higher' ? v >= 0 : v <= 0;
+    el.classList.toggle('af-good', bom);
+    el.classList.toggle('af-bad', !bom);
+  }
+});
+
+/* Selo de faixa alcançada */
+dash.draw('faixa', (el) => {
+  const d = dash.data('metas_faixa');
+  if (d.status !== 'ok' || !d.data) { el.textContent = ''; return; }
+  const r = d.data.find((x) => x.id === el.dataset.id);
+  const f = r ? r.faixa : 0;
+  el.className = 'af-pill ' + (f >= 100 ? 'af-p-ok' : f >= 50 ? 'af-p-warn' : 'af-p-bad');
+  el.textContent = f > 0 ? 'faixa ' + f + '%' : 'abaixo de 25%';
+});
+
+/* Tabela de metas */
+dash.draw('metas', (tb) => {
+  const mt = dash.data('metas'), fx = dash.data('metas_faixa');
+  tb.replaceChildren();
+  if (mt.status !== 'ok' || fx.status !== 'ok' || !fx.data) return;
+  const sem = tb.dataset.sem;
+  const un = (m, v) => m.unidade === '%' ? AF.loc.format(',.1~f')(v) + '%' : m.unidade === 'min' ? v + ' min' : m.unidade === 'h' ? v + ' h' : AF.f.int(v);
+  const tom = (f) => (f >= 100 ? 'ok' : f >= 50 ? 'warn' : 'bad');
+  mt.data.filter((m) => m.semestre === sem).forEach((m) => {
+    const r = fx.data.find((x) => x.id === m.id);
+    const f = r ? r.faixa : 0;
+    const tr = document.createElement('tr'); tr.dataset.key = AF.enc(m.id);
+    const td1 = document.createElement('td'); td1.className = 'af-ind'; td1.textContent = m.indicador;
+    const td2 = document.createElement('td');
+    const lad = document.createElement('div'); lad.className = 'af-ladder';
+    [[125, m.f125], [100, m.f100], [75, m.f75], [50, m.f50], [25, m.f25]].filter((t) => t[1] != null).forEach(([p, lim]) => {
+      const s = document.createElement('div');
+      s.className = 'af-step' + (f === p ? ' on af-s-' + tom(f) : '');
+      s.textContent = p + '%';
+      const sp = document.createElement('span'); sp.textContent = (m.sentido === 'maior' ? '≥ ' : '≤ ') + un(m, lim);
+      s.appendChild(sp); lad.appendChild(s);
+    });
+    td2.appendChild(lad);
+    const td3 = document.createElement('td'); td3.className = 'af-num af-res'; td3.textContent = m.resultado_txt;
+    const td4 = document.createElement('td'); td4.className = 'af-num';
+    const pill = document.createElement('span');
+    pill.className = 'af-pill af-p-' + tom(f);
+    pill.textContent = f > 0 ? f + '%' : 'abaixo de 25%';
+    td4.appendChild(pill);
+    tr.append(td1, td2, td3, td4);
+    tb.appendChild(tr);
+  });
+});
+
+/* Receita mensal do 2º semestre */
+dash.draw('ch_receita', (el) => {
+  const d = dash.data('rv'), sc = dash.data('sem_comp');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  const ref = sc.status === 'ok' && sc.data ? sc.data.find((r) => r.indicador.indexOf('Receita') === 0) : null;
+  AFchart(el, {
+    height: 200,
+    aria: 'Colunas da receita recorrente mensal do 2º semestre de 2026, com a média mensal do 1º semestre como referência',
+    cats: AF.MESES_2S.map(AF.mes),
+    stacks: [{values: rs.map((r) => (r ? r.receita : null)), color: 'var(--af-c1)', label: (v) => AF.mil0(v)}],
+    ref: ref ? {value: ref.s1, label: 'média 1º sem.: ' + AF.mil0(ref.s1)} : null,
+    subLabel: (i) => (rs[i] && i > 0 && rs[i - 1] ? AF.f.pct1s((rs[i].receita / rs[i - 1].receita - 1) * 100) : (rs[i] ? '' : 'sem dados')),
+    yFmt: (v) => (v === 0 ? '0' : AF.loc.format(',.0f')(v / 1000) + ' mil'),
+    tip: (i) => (rs[i] ? [AF.mesLongo(rs[i].mes), 'Receita: ' + AF.f.brl(rs[i].receita)] : null)
+  });
+});
+
+/* Base pagante do 2º semestre */
+dash.draw('ch_base', (el) => {
+  const d = dash.data('rv');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  AFchart(el, {
+    height: 200,
+    aria: 'Colunas empilhadas da base pagante do 2º semestre, Unimeds FESP e outros projetos, com valores em cada parte',
+    cats: AF.MESES_2S.map(AF.mes),
+    stacks: [
+      {values: rs.map((r) => (r ? r.pagantes_fesp : null)), color: 'var(--af-c1)', label: (v) => AF.f.int(v), labelPos: 'in'},
+      {values: rs.map((r) => (r ? r.pagantes_outros : null)), color: 'var(--af-c2)', label: (v) => AF.f.int(v), labelPos: 'in'}
+    ],
+    topLabel: (i) => (rs[i] ? AF.f.int(rs[i].pagantes_total) : null),
+    yFmt: (v) => AF.f.int(v),
+    tip: (i) => (rs[i] ? [AF.mesLongo(rs[i].mes), 'Total: ' + AF.f.int(rs[i].pagantes_total), 'Unimeds FESP: ' + AF.f.int(rs[i].pagantes_fesp), 'Outros projetos: ' + AF.f.int(rs[i].pagantes_outros)] : null)
+  });
+});
+
+/* Entradas de usuários, saídas como informação */
+dash.draw('ch_entradas', (el) => {
+  const d = dash.data('rv');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  AFchart(el, {
+    height: 200,
+    aria: 'Colunas de usuários adicionados por mês no 2º semestre, com as saídas indicadas abaixo de cada mês',
+    cats: AF.MESES_2S.map(AF.mes),
+    stacks: [{values: rs.map((r) => (r ? r.adicionados : null)), color: 'var(--color-ok)', label: (v) => '+' + AF.f.int(v)}],
+    subLabel: (i) => (rs[i] ? 'saídas ' + AF.f.int(rs[i].desativados) : ''),
+    yFmt: (v) => AF.f.int(v),
+    tip: (i) => (rs[i] ? [AF.mesLongo(rs[i].mes), 'Entradas: ' + AF.f.int(rs[i].adicionados), 'Saídas (informativo): ' + AF.f.int(rs[i].desativados)] : null)
+  });
+});
+
+/* Cross × down sell */
+dash.draw('ch_expansao', (el) => {
+  const d = dash.data('rv');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  AFchart(el, {
+    height: 170,
+    aria: 'Colunas de cross positivo e down sell negativo por mês do 2º semestre, com valores e expansão líquida abaixo de cada mês',
+    cats: AF.MESES_2S.map(AF.mes),
+    stacks: [
+      {values: rs.map((r) => (r ? r.cross : null)), color: 'var(--color-ok)', label: (v) => AF.mil1(v)},
+      {values: rs.map((r) => (r ? r.downsell : null)), color: 'var(--color-bad)', label: (v) => AF.mil1(v)}
+    ],
+    subLabel: (i) => (rs[i] ? 'líq. ' + AF.mil1(rs[i].cross + rs[i].downsell) : ''),
+    yFmt: (v) => (v === 0 ? '0' : AF.loc.format(',.0f')(v / 1000)),
+    tip: (i) => (rs[i] ? [AF.mesLongo(rs[i].mes), 'Cross: ' + AF.f.brl(rs[i].cross), 'Down sell: ' + AF.f.brl(rs[i].downsell), 'Expansão líquida: ' + AF.f.brl(rs[i].cross + rs[i].downsell)] : null)
+  });
+});
+
+/* Chamados do 2º semestre */
+dash.draw('ch_chamados', (el) => {
+  const d = dash.data('sup');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  AFchart(el, {
+    height: 170,
+    aria: 'Colunas de chamados HubSpot por mês do 2º semestre, novembro parcial',
+    cats: AF.MESES_2S.map((k, i) => AF.mes(k) + (rs[i] && rs[i].parcial ? '*' : '')),
+    stacks: [{values: rs.map((r) => (r ? r.chamados : null)), color: 'var(--af-c1)', label: (v) => AF.f.int(v)}],
+    opacityAt: (i) => (rs[i] && rs[i].parcial ? 0.45 : 1),
+    yFmt: (v) => AF.f.int(v),
+    tip: (i) => (rs[i] ? [AF.mesLongo(rs[i].mes) + (rs[i].parcial ? ' (parcial)' : ''), 'Chamados: ' + AF.f.int(rs[i].chamados), 'Avaliações: ' + AF.f.int(rs[i].avaliacoes)] : null)
+  });
+});
+
+/* CSAT do 2º semestre */
+dash.draw('ch_csat', (el) => {
+  const d = dash.data('sup'), mt = dash.data('metas');
+  if (d.status !== 'ok') return AF.ph(el, d.status);
+  const rs = AF.byMonth(d.data);
+  const meta = mt.status === 'ok' ? mt.data.find((m) => m.id === '2S · CSAT médio') : null;
+  AFchart(el, {
+    height: 150,
+    aria: 'Linha do CSAT mensal no 2º semestre de 2026, com a meta de 100% como referência',
+    cats: AF.MESES_2S.map(AF.mes),
+    line: {values: rs.map((r) => (r ? r.csat_pct : null)), color: 'var(--af-c1)', label: (v) => AF.f.pct1(v)},
+    yDomain: [94, 99],
+    yFmt: (v) => AF.loc.format(',.0f')(v) + '%',
+    ref: meta ? {value: meta.f100, label: 'meta 100%: ' + AF.loc.format(',.0f')(meta.f100) + '%'} : null,
+    tip: (i) => (rs[i] && rs[i].csat_pct != null ? [AF.mesLongo(rs[i].mes), 'CSAT: ' + AF.f.pct1(rs[i].csat_pct), 'Avaliações: ' + AF.f.int(rs[i].avaliacoes)] : null)
+  });
+});
+
+/* Avaliações por analista */
+dash.draw('hb_aval', (el) => {
+  const d = dash.data('aval');
+  if (d.status !== 'ok' || !d.data) { el.replaceChildren(); return; }
+  const rs = d.data.slice().sort((a, b) => b.avaliacoes - a.avaliacoes || b.media - a.media);
+  AFhbars(el, rs.map((r) => ({
+    label: r.analista, value: r.avaliacoes, color: 'var(--af-c1)',
+    parts: [
+      {text: AF.f.int(r.avaliacoes), strong: true, mark: {source: 'aval', field: 'avaliacoes', where: 'analista=' + AF.enc(r.analista)}},
+      {text: ' · '},
+      {text: AF.f.dec2(r.media), mark: {source: 'aval', field: 'media', where: 'analista=' + AF.enc(r.analista)}}
+    ]
+  })), {});
+});
+
+/* Destaques de cross */
+dash.draw('hb_cross', (el) => {
+  const d = dash.data('cross');
+  if (d.status !== 'ok' || !d.data) { el.replaceChildren(); return; }
+  const rs = d.data.slice().sort((a, b) => b.valor - a.valor);
+  AFhbars(el, rs.map((r) => ({
+    label: r.operadora ? r.projeto + ' · ' + r.operadora.replace('Unimed ', 'U. ') : r.projeto, value: r.valor, color: 'var(--color-ok)',
+    parts: [{text: AF.f.brl(r.valor), strong: true, mark: {source: 'cross', field: 'valor', where: 'projeto=' + AF.enc(r.projeto)}}]
+  })), {});
+});
+</script>
+<script>
+dash.draw('cia_chips', (el) => {
+  const d = dash.data('cia');
+  el.replaceChildren();
+  if (d.status !== 'ok' || !d.data.length) return;
+  const l = document.createElement('span'); l.className = 'af-cia-l'; l.textContent = 'Notas CIA'; el.appendChild(l);
+  d.data.forEach((r) => {
+    const c = document.createElement('div'); c.className = 'af-chip';
+    const s = document.createElement('span'); s.textContent = r.indicador;
+    const b = document.createElement('b'); b.textContent = AF.f.pct1(r.nota_pct);
+    c.append(s, b); el.appendChild(c);
+  });
+});
+</script>
+
+</body>
+</html>
