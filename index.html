@@ -231,8 +231,19 @@ window.AFStart = function () {
   const hora = () => new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
   const show = (t) => { if (st) st.textContent = t; };
   const copia = () => 'Exibindo a cópia salva (planilha atualizada em ' + (dash._raw()._atualizado || '—') + ').';
-  setTimeout(() => location.reload(), MINUTOS * 60 * 1000 + 1000);
-  if (!/^https?:\/\//.test(url)) { show(copia() + ' Link da planilha ainda não configurado.'); return; }
+  let timer = null;
+  const agendar = () => { clearTimeout(timer); timer = setTimeout(() => location.reload(), MINUTOS * 60 * 1000); };
+  agendar();
+  const btn = document.getElementById('af-refresh');
+  const temLink = /^https?:\/\//.test(url);
+  if (btn) btn.addEventListener('click', async () => {
+    if (!temLink) { location.reload(); return; }
+    btn.disabled = true; btn.classList.add('af-busy'); btn.lastChild.textContent = ' Atualizando…';
+    await carregar();
+    agendar();
+    btn.disabled = false; btn.classList.remove('af-busy'); btn.lastChild.textContent = ' Atualizar agora';
+  });
+  if (!temLink) { show(copia() + ' Link da planilha ainda não configurado.'); return; }
   try { const s = localStorage.getItem('af-ultima'); if (s) { const j = JSON.parse(s); if (j && j.rv) dash._set(j); } } catch (e) {}
   async function carregar() {
     try {
@@ -274,6 +285,14 @@ window.AFStart = function () {
 .af-theme button{font:inherit;font-size:12px;padding:4px 12px;border:0;background:transparent;color:var(--color-fg-muted);cursor:pointer}
 .af-theme button[aria-pressed="true"]{background:var(--color-fg);color:var(--color-bg)}
 .af-theme button:focus-visible{outline:2px solid var(--af-c1);outline-offset:-2px}
+.af-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.af-refresh{font:inherit;font-size:12px;font-weight:700;padding:4px 14px;border-radius:999px;border:1px solid var(--af-c1);background:var(--af-c1);color:var(--af-on);cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.af-refresh:hover{filter:brightness(1.1)}
+.af-refresh:focus-visible{outline:2px solid var(--color-fg);outline-offset:2px}
+.af-refresh:disabled{opacity:.7;cursor:progress}
+.af-ico{display:inline-block;font-size:14px;line-height:1}
+@media (prefers-reduced-motion:no-preference){.af-busy .af-ico{animation:af-spin 1s linear infinite}}
+@keyframes af-spin{to{transform:rotate(360deg)}}
 .af-cia{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
 .af-cia-l{font-size:11px;color:var(--color-fg-muted);text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
 .af-chip{display:flex;flex-direction:column;align-items:center;padding:3px 9px;border:1px solid var(--color-border-line);border-radius:var(--cds-radius);background:var(--color-panel);min-width:70px}
@@ -357,10 +376,13 @@ window.AFStart = function () {
       <p class="af-lede" data-read lang="pt-BR">Em <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="mes_nome" data-fmt="text">—</b> a receita recorrente somou <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita" data-fmt="brl">—</b> (<b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="receita_var_pct" data-fmt="pct1s" data-tone="higher">—</b> sobre o mês anterior) e a expansão líquida foi de <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="expansao" data-fmt="brl" data-tone="higher">—</b>, puxada por down sell de <b data-draw="kpi" data-source="kpi_out" data-row="0" data-field="downsell" data-fmt="brl">—</b>. <b data-draw="kpi" data-source="metas_resumo" data-where="semestre=2S" data-field="no_alvo" data-fmt="int">—</b> de <b data-draw="kpi" data-source="metas_resumo" data-where="semestre=2S" data-field="total" data-fmt="int">—</b> metas do semestre estão na faixa de 100% ou acima.</p>
     </div>
     <div class="af-side">
+      <div class="af-ctrl">
+      <button type="button" class="af-refresh" id="af-refresh" title="Lê a planilha agora, sem esperar a atualização automática"><span class="af-ico" aria-hidden="true">↻</span> Atualizar agora</button>
       <div class="af-theme" role="group" aria-label="Tema">
         <button type="button" id="tema-auto" data-theme-pick="auto" aria-pressed="true">Automático</button>
         <button type="button" id="tema-claro" data-theme-pick="light" aria-pressed="false">Claro</button>
         <button type="button" id="tema-escuro" data-theme-pick="dark" aria-pressed="false">Escuro</button>
+      </div>
       </div>
       <div class="af-cia" id="notas-cia" aria-label="Notas CIA" data-draw="cia_chips"></div>    </div>
   </header>
